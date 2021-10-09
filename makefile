@@ -1,2 +1,2 @@
-odca: dca1d.c
-	gcc -o odca dca1d.c
+odca: ca.c main.c
+	gcc -o odca ca.c main.c
