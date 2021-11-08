@@ -87,7 +87,8 @@ void stepCA( struct ca_data * a, unsigned char (*rule)(struct ca_data *, int)){
 	for(int i = 0;i<(a->width);i++){
 		a->cadata[i]= rule(b,i);
 	}
-	
+	free(b->cadata);
+	free(b);
 	
 	
 	
@@ -103,7 +104,8 @@ void step2DCA( struct ca_data *ca, unsigned char (*rule)(struct ca_data *, int x
 	for(int i = 0;i<(ca->width*ca->height);i++){
 		ca->cadata[i]= rule(b,i%ca->width,i/ca->height);
 	}
-	
+	free(b->cadata);
+	free(b);
 	
 }
 
