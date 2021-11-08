@@ -57,3 +57,5 @@ step2DCA: makes a struct ca_data pointer and mallocs it with size of the orginal
 main.c:
 Takes in an input in the command line of a 1 or 2 as the first value to decide if it is making a 1D or 2D CA struct, for this main function it only allows 2D since the rule applies to 2D so if 1 is put in it exits and informs the user of the error. The second is the path to a file to read. The program reads the file and takes the first to integers as height and width, then there should be h*w more values and these will be the intial states of the Ca struct. It makes the struct then uses a loop to read and set all the intial values. Then looks for user input, anytime the user enters a blank line or hits enter it will display one step of the Ca struct until the user enters a char or string in the console.
 
+Main also defines the rule for the game of life in the function bRule which will check all adjacent values with wrap and count the amount of '1' or live squares and then sends the value that this index should change to
+
