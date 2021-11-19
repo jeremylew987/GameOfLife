@@ -50,9 +50,8 @@ close(sockfd);
 
 GraphicsClient& GraphicsClient::operator=(const GraphicsClient& a){
 GraphicsClient g = GraphicsClient(a.address,a.port);
-//close current socekt
-//TODO fix this
-
+close(sockfd);
+*this = g;
 return *this;
 }
 void GraphicsClient::setBackgroundColor( int r, int g, int b){

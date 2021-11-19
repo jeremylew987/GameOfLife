@@ -1,61 +1,97 @@
-ca.h:
-This file includes the prototypes for:
-Struct ca_data which has a array of unsigned chars and a integer to state the height, width, if it's 1D or 2D and a unsigned char to decide if it is wrapped or not
+GraphicsClient.hh and GraphicsClient.cpp:
+Graphics client stores:
+int sockfd, int port, string address, and char message[]
 
-init1DCA which will initialize an array of unsigned chars to '0' with a length as a parameter
-Parameters: int, struct ca_data *
-Return: void
+GraphicsClient(std::string, int);
+Makes a object with an input of an address and port number to open a connection with
 
-set1DCACell which will set the unsigned char stored at an index in the unsigned char array in a ca_data struct to a value
-Parameters: struct ca_data *, int, unsigned char
-Return: int: 1 if it works
+GraphicsClient(const GraphicsClient &a);
+makes a deep copy of a by calling GraphicsClient(std::string, int) with the address and port from a
 
-set2DCACell which will set the unsigned char stored at an index in the unsigned char array in a ca_data struct to a value
-Parameters: struct ca_data *, int, int, unsigned char
-Return: int: 1 if it works
+~GraphicsClient();
+closes the connection to the server
 
-displayCA which will display the unsigned char array of a ca_data struct
-Parameters: struct ca_data *
-Return: void
+GraphicsClient& operator=(const GraphicsClient& a);
+closes the exsisting connection and calls a constructor with the parameters of a, then sets the current *this to refrence the new object
 
-create1DCA which will make a pointer equal to malloc of size struct ca_data and also malloc the space for its array
-of unsigned chars, will also set them to a certain value.
-Parameters: int, unsigned char
-Return: struct ca_data *
+void setBackgroundColor( int r, int g, int b);
+sets the char array message[0] - message[5] to their appropriate values for this message, then divides up r g and b into 4 bytes each and adds them to the message in that order, then uses the sockfd to send it to the server
 
-create2DCA which will make a pointer equal to malloc of size struct ca_data and also malloc the space for its array
-Parameters: int,int, unsigned char
-Return: struct ca_data *
+void setDrawingColor( int r, int g, int b);
+sets the char array message[0] - message[5] to their appropriate values for this message, then divides up r g and b into 4 bytes each and adds them to the message in that order, then uses the sockfd to send it to the server
+
+void clear();
+sets the char array message[0] - message[5] to their appropriate values for this message, then uses the sockfd to send it to the server
+
+void setPixel( int x, int y, int r, int g, int b);
+sets the char array message[0] - message[5] to their appropriate values for this message, then divides up x and y into 4 bytes each and adds it to message, then divides up r g and b into 4 bytes each and adds them to the message in that order, then uses the sockfd to send it to the server
+
+(These ones all work the same way)
+void drawRectangle( int x, int y, int width, int height);
+void fillRectangle( int x, int y, int width, int height);
+void clearRectangle( int x, int y, int width, int height);
+void drawOval( int x, int y, int width, int height);
+void fillOval( int x, int y, int width, int height);
+sets the char array message[0] - message[5] to their appropriate values for this message, then divides up x and y into 4 bytes each and adds it to message, then divides up width and height into 4 bytes each and adds them to the message in that order, then uses the sockfd to send it to the server
+
+void drawLine( int x1, int y1, int x2,  int y2);
+sets the char array message[0] - message[5] to their appropriate values for this message, then divides up  the first x and y into 4 bytes each and adds it to message, then divides up  the second x and y into 4 bytes each and adds it to message,, then uses the sockfd to send it to the server
+
+void drawstring( int x, int y, string s);
+Finds the total size by 14 + 2(string size) since each char in the string will be two bytes, and finds payload size by 9 + 2(string size) since it doesn't include the payload size and sync bytes
+sets sync bit to message[0] and the payload bytes by dividing the payload size into 4 bytes through bitwise operators and sets message[5] to oXo5 for string,
+then divides the x and y into 4 bytes each and then adds them
+then uses a for loop to get each char from the string, turn them into two bytes each, then add them
+lastly it sends the message to the server
+
+void repaint();
+sets the char array message[0] - message[5] to their appropriate values for this message, then uses the sockfd to send it to the server
+
+CellularAutomaton.hh and CellularAutomaton.cpp:
+Stores:
+int height, int width ,int qState, int * caData, and bool wrap
+
+CellularAutomaton(std::string, int);
+Uses a file name to open a file and get interger values out of it to first get the height and width and then make a new int array size of height*width set to caData, then uses a for loop to loop through heigth*width values from the file to be the values caData, it then setsthe qState to the int taken in as the other parameter and sets wrap to true
+
+CellularAutomaton(const CellularAutomaton & tocopy);
+This makes a new int array the size of tocopy's height*width
+iterates through a loop copying the values of tocopy's caData to this object
+copys over the height, width, qState and wrap
+
+~CellularAutomaton();
+deletes caData
+
+int * getcaData();
+makes a copy of caData and returns a pointer to it, for step function rule
+
+int getHeight();
+returns the height
+
+int getWidth();
+returns the width
+
+CellularAutomaton& operator=(const CellularAutomaton& tocopy);
+deletes caData
+then makes a new int array the size of tocopy's height*width
+iterates through a loop copying the values of tocopy's caData to this object
+copys over the height, width, qState and wrap
+
+void step(int (*func)(CellularAutomaton&,int));
+Use the rule and makes a copy of the object to send into the rule for every index and changes the caData based on the responses
+
+void display(GraphicsClient & d);
+clears the graphics client
+finds the cell size and cell gap according to the max between height and width
+uses a for loop to iterate height*width times, each step changes and x varible by cellsize+cellgap and if at the end of the row it will add cellsize+cellgap to a y varible, for each iteration it will check if the value at this index is a 1 and if it is it will fill a rectangle on the current x and y with a height and width of cellsize.
+at the end it will repaint to refresh the display on the graphics client.
+
+void display();//used for testing the rule
+iterates through and prints values to the console of caData
 
 
+Main.cpp:
+Rule takes in a CellularAutomaton refrence and a index, it then checks the surounding 8 indexs using % and adding width or height accordingly and counts the number of active indexs around it and returns the value it should change to based on that.
 
-stepCA which will update the struct to the next state based off of a rule
-using a rule that is passed in as a parameter 
-Parameters: struct ca_data *, unsigned char (*)(struct ca_data *, int)
-return: unsigned char
-
-step2DCA which will update the struct to the next state based off of a rule
-Parameters:struct ca_data *ca, unsigned char (*rule)(struct ca_data *, int x, int y)
-
-ca.c:
-Includes: <stdio.h> <stdlib.h> ca.h
-
-Defines:
-init1DCA: Uses a for loop until length desired in parameter to set value in the array in the struct ca_data to 0
-set1DCACell: Sets value in the array in struct ca_data at set index to the value in the parameter
-set2DCACell:Sets value in the array in struct ca_data at set x and y index to the value in the parameter
-displayCA: Uses a for loop until length desired in parameter and prints the value of the array in struct ca_data
- at each index, then prints a new line
-create1DCA: mallocs the space for a struct ca_data to a pointer and then mallocs the space of the array in ca_data to the
-proper length taken in by the parameter, it then uses a for loop to set all the valies in that array to a set value
-create2DCA:mallocs the space for a struct ca_data to a pointer and then mallocs the space of the array in ca_data to the
-proper length taken in by the parameters height and width, it then uses a for loop to set all the valies in that array to a set value
-stepCA: makes a struct ca_data pointer and mallocs it with size of the orginal struct ca_data, sets the wrap value to the same as orginal, and runs the rule function on each index in the array of the new struct and sets the value returned to the index of the original struct, then frees the new struct
-step2DCA: makes a struct ca_data pointer and mallocs it with size of the orginal struct ca_data, sets the wrap value to the same as orginal, and runs the rule function on each index in the array of the new struct and sets the value returned to the index of the original struct, then frees the new struct
-
-
-main.c:
-Takes in an input in the command line of a 1 or 2 as the first value to decide if it is making a 1D or 2D CA struct, for this main function it only allows 2D since the rule applies to 2D so if 1 is put in it exits and informs the user of the error. The second is the path to a file to read. The program reads the file and takes the first to integers as height and width, then there should be h*w more values and these will be the intial states of the Ca struct. It makes the struct then uses a loop to read and set all the intial values. Then looks for user input, anytime the user enters a blank line or hits enter it will display one step of the Ca struct until the user enters a char or string in the console.
-
-Main also defines the rule for the game of life in the function bRule which will check all adjacent values with wrap and count the amount of '1' or live squares and then sends the value that this index should change to
-
+the main function takes in a command line string that is the file address of the file you'd like to make, it then calls a constructor on graphics client to make a connection and makes a cellular automaton witht the file sent in with a qstate of 1.
+It then displays the cellular automaton on the graphics server and waits for user input, each time the user inputs just a newline it will step and display again, if the user enters anything different it will end the program
