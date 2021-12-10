@@ -27,6 +27,9 @@ class GraphicsClient {
     void drawLine( int x1, int y1, int x2,  int y2);
     void drawstring( int x, int y, string s);
     void repaint();
+    void drawButtons();
+    int* getInput();
+    string getFile();
 
 
 
